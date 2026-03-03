@@ -15,6 +15,31 @@ body {
   padding: 24px;
 }
 
+
+.page-tag-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.page-tag-row .pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(94, 114, 228, 0.4);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #cfe2ff;
+  text-decoration: none;
+}
+.page-tag-row .pill.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-color: transparent;
+  color: #fff;
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;

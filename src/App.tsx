@@ -288,6 +288,10 @@ const App = () => {
 
   return (
     <div className="app-shell">
+      <div className="page-tag-row">
+        <a className="pill" href="/">openai-tw.com</a>
+        <span className="pill active">Prompt Builder</span>
+      </div>
       <header>
         <h1>Prompt Builder · AI 圖生影片提示詞</h1>
         <p className="hint">左側全域參數、中間分鏡、右側輸出與 Preset。</p>
