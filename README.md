@@ -20,6 +20,16 @@ pnpm preview   # 預覽 build 結果
 
 > 若未安裝 `pnpm`，可改用 `npm` 或 `yarn` 執行相同指令。
 
+## 自動部署（GitHub Pages）
+
+Repo 內建 `.github/workflows/deploy.yml`：
+
+1. 每次 push `main` 或手動 `workflow_dispatch` 觸發
+2. 使用 Node 20 建置 (`npm install && npm run build`)
+3. 上傳 `dist/` 並透過 `actions/deploy-pages` 發佈到 GitHub Pages
+
+啟用方式：到 GitHub 設定 `Pages` → 選擇 **GitHub Actions**，首次部署後 URL 會顯示在 workflow outputs。
+
 ## 專案結構
 
 ```
