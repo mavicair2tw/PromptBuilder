@@ -345,6 +345,8 @@ const App = () => {
       </div>
 
       <PresetExamples examples={sampleSnapshots} onApply={applySnapshot} />
+
+      <DonateBar />
     </div>
   );
 };
