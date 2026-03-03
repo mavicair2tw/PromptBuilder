@@ -289,7 +289,7 @@ const App = () => {
   return (
     <div className="app-shell">
       <div className="page-tag-row">
-        <a className="pill" href="/">openai-tw.com</a>
+        <a className="pill" href="/">Home</a>
         <span className="pill active">Prompt Builder</span>
       </div>
       <header>
