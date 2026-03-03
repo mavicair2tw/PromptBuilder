@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import StoryboardEditor from './components/StoryboardEditor';
 import OutputPanel from './components/OutputPanel';
 import PresetExamples from './components/PresetExamples';
+import DonateBar from './components/DonateBar';
 import {
   actions,
   cameraOptions,
