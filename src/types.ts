@@ -50,3 +50,18 @@ export interface SavedPreset {
   savedAt: string;
   snapshot: BuilderSnapshot;
 }
+
+export interface SoraConfig {
+  model: 'sora-2' | 'sora-2-pro';
+  duration: 5 | 10 | 20;
+  aspectRatio: '16:9' | '9:16' | '1:1';
+  resolution: '720p' | '1080p';
+}
+
+export interface SoraJobState {
+  jobId: string | null;
+  status: 'idle' | 'requesting' | 'queued' | 'in_progress' | 'completed' | 'failed' | 'error' | 'timeout';
+  videoUrl: string;
+  error?: string;
+  progress?: number | null;
+}

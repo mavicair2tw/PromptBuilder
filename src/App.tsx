@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import StoryboardEditor from './components/StoryboardEditor';
 import OutputPanel from './components/OutputPanel';
@@ -17,7 +17,9 @@ import {
   CustomOptions,
   GlobalFormState,
   Option,
-  Segment
+  Segment,
+  SoraConfig,
+  SoraJobState
 } from './types';
 import './styles/App.css';
 
@@ -39,6 +41,15 @@ const defaultGlobal: GlobalFormState = {
   negativePrompt: '',
   lensNotes: ''
 };
+
+const defaultSoraConfig: SoraConfig = {
+  model: 'sora-2',
+  duration: 5,
+  aspectRatio: '16:9',
+  resolution: '720p'
+};
+
+const MAX_SORA_POLL_MS = 3 * 60 * 1000;
 
 const sampleSnapshots: { name: string; snapshot: BuilderSnapshot }[] = [
   {
@@ -117,6 +128,16 @@ const App = () => {
     actions: [],
     environments: []
   });
+  const [soraConfig, setSoraConfig] = useState<SoraConfig>(defaultSoraConfig);
+  const [soraJob, setSoraJob] = useState<SoraJobState>({
+    jobId: null,
+    status: 'idle',
+    videoUrl: '',
+    error: undefined,
+    progress: null
+  });
+  const pollRef = useRef<number | null>(null);
+  const pollStartRef = useRef<number | null>(null);
 
   const allSubjects: Option[] = [...subjects, ...customOptions.subjects];
   const allActions: Option[] = [...actions, ...customOptions.actions];
@@ -253,6 +274,143 @@ const App = () => {
     URL.revokeObjectURL(url);
   };
 
+  const updateSoraConfig = (patch: Partial<SoraConfig>) => {
+    setSoraConfig(prev => ({ ...prev, ...patch }));
+  };
+
+  const stopSoraPolling = () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopSoraPolling();
+    };
+  }, []);
+
+  const buildSoraPrompt = () => {
+    const storyboardText = storyboardLines.join('\n');
+    const parts = [basicPrompt];
+    if (storyboardText.trim()) {
+      parts.push(`Storyboards:\n${storyboardText}`);
+    }
+    return parts.filter(Boolean).join('\n\n');
+  };
+
+  const pollSoraStatus = async (jobId: string) => {
+    if (!jobId) return;
+    if (pollStartRef.current && Date.now() - pollStartRef.current > MAX_SORA_POLL_MS) {
+      stopSoraPolling();
+      setSoraJob(prev => ({
+        ...prev,
+        status: 'timeout',
+        error: 'Sora generation timed out after 3 minutes.'
+      }));
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/sora/status/${jobId}`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to fetch Sora status.');
+      }
+
+      setSoraJob(prev => ({
+        ...prev,
+        status: data.status,
+        progress: typeof data.progress === 'number' ? data.progress : prev.progress ?? null,
+        error: data.error || undefined
+      }));
+
+      if (data.status === 'completed' && data.video_url) {
+        stopSoraPolling();
+        setSoraJob(prev => ({
+          ...prev,
+          status: 'completed',
+          videoUrl: data.video_url,
+          error: undefined,
+          progress: 100
+        }));
+      } else if (data.status === 'failed') {
+        stopSoraPolling();
+        setSoraJob(prev => ({
+          ...prev,
+          status: 'failed',
+          error: data.error || 'Sora reported a failure.'
+        }));
+      }
+    } catch (error) {
+      stopSoraPolling();
+      setSoraJob(prev => ({
+        ...prev,
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Failed to poll Sora job.'
+      }));
+    }
+  };
+
+  const handleGenerateSoraVideo = async () => {
+    const compiledPrompt = buildSoraPrompt();
+    if (!compiledPrompt.trim()) {
+      alert('請先建立有效的 Prompt 後再啟動 Sora 影片生成。');
+      return;
+    }
+
+    stopSoraPolling();
+    setSoraJob({ jobId: null, status: 'requesting', videoUrl: '', error: undefined, progress: null });
+
+    try {
+      const response = await fetch('/api/sora/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: compiledPrompt,
+          model: soraConfig.model,
+          duration: soraConfig.duration,
+          aspect_ratio: soraConfig.aspectRatio,
+          resolution: soraConfig.resolution
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to start Sora generation.');
+      }
+
+      setSoraJob({
+        jobId: data.id,
+        status: data.status ?? 'queued',
+        videoUrl: '',
+        error: undefined,
+        progress: null
+      });
+      pollStartRef.current = Date.now();
+      pollRef.current = window.setInterval(() => pollSoraStatus(data.id), 2000);
+    } catch (error) {
+      stopSoraPolling();
+      setSoraJob({
+        jobId: null,
+        status: 'error',
+        videoUrl: '',
+        error: error instanceof Error ? error.message : 'Failed to start Sora generation.',
+        progress: null
+      });
+    }
+  };
+
+  const handleCopyVideoUrl = async () => {
+    if (!soraJob.videoUrl) return;
+    try {
+      const absoluteUrl = new URL(soraJob.videoUrl, window.location.origin).toString();
+      await navigator.clipboard.writeText(absoluteUrl);
+    } catch {
+      alert('複製影片連結失敗，請手動複製。');
+    }
+  };
+
   const snapshotCurrent = (): BuilderSnapshot => ({
     global: globalForm,
     segments,
@@ -344,6 +502,11 @@ const App = () => {
           onDownload={downloadTxt}
           charCount={charCount}
           tokenEstimate={tokenEstimate}
+          soraConfig={soraConfig}
+          onSoraConfigChange={updateSoraConfig}
+          onGenerateSora={handleGenerateSoraVideo}
+          soraJob={soraJob}
+          onCopyVideoUrl={handleCopyVideoUrl}
         />
       </div>
 

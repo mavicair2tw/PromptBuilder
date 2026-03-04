@@ -239,6 +239,72 @@ button:not(:disabled):hover {
   color: #cbd5f5;
 }
 
+.sora-panel {
+  margin-top: 24px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sora-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.sora-generate {
+  min-width: 190px;
+  padding: 10px 18px;
+  font-weight: 600;
+}
+
+.sora-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.sora-grid label {
+  font-size: 13px;
+}
+
+.sora-grid select {
+  width: 100%;
+}
+
+.sora-status {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.sora-progress {
+  color: #a5b4fc;
+}
+
+.sora-error {
+  color: #fecaca;
+  margin: 4px 0 0;
+}
+
+.sora-video video {
+  width: 100%;
+  border-radius: 12px;
+  background: #000;
+}
+
+.sora-video button {
+  margin-top: 8px;
+}
+
 .examples {
   text-align: center;
 }
