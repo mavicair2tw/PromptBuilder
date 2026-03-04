@@ -12,7 +12,6 @@ import {
   styleOptions,
   subjects
 } from './data/options';
-import { usePresets } from './hooks/usePresets';
 import {
   BuilderSnapshot,
   CustomOptions,
@@ -122,8 +121,6 @@ const App = () => {
   const allSubjects: Option[] = [...subjects, ...customOptions.subjects];
   const allActions: Option[] = [...actions, ...customOptions.actions];
   const allEnvironments: Option[] = [...environments, ...customOptions.environments];
-
-  const { presets, savePreset, removePreset } = usePresets();
 
   const updateGlobalForm = (patch: Partial<GlobalFormState>) => {
     setGlobalForm(prev => ({ ...prev, ...patch }));
@@ -268,15 +265,6 @@ const App = () => {
     setCustomOptions(snapshot.customOptions);
   };
 
-  const handleSavePreset = (name: string) => {
-    savePreset(name, snapshotCurrent());
-  };
-
-  const handleLoadPreset = (id: string) => {
-    const preset = presets.find(p => p.id === id);
-    if (preset) applySnapshot(preset.snapshot);
-  };
-
   const charCount = {
     basic: basicPrompt.length,
     storyboard: storyboardLines.join('\n').length
@@ -356,10 +344,6 @@ const App = () => {
           onDownload={downloadTxt}
           charCount={charCount}
           tokenEstimate={tokenEstimate}
-          onSavePreset={handleSavePreset}
-          presets={presets}
-          onLoadPreset={handleLoadPreset}
-          onDeletePreset={removePreset}
         />
       </div>
 
