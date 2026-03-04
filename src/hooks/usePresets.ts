@@ -18,15 +18,30 @@ const safeParse = (value: string | null): SavedPreset[] => {
   }
 };
 
-export const usePresets = () => {
-  const [presets, setPresets] = useState<SavedPreset[]>(() => {
-    if (typeof window === 'undefined') return [];
+const loadFromStorage = (): SavedPreset[] => {
+  if (typeof window === 'undefined') return [];
+  try {
     return safeParse(window.localStorage.getItem(STORAGE_KEY));
-  });
+  } catch (error) {
+    console.warn('[Prompt Builder] localStorage unavailable, presets kept in-memory only.', error);
+    return [];
+  }
+};
+
+const persistToStorage = (value: SavedPreset[]) => {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+  } catch (error) {
+    console.warn('[Prompt Builder] Failed to persist presets, storage disabled?', error);
+  }
+};
+
+export const usePresets = () => {
+  const [presets, setPresets] = useState<SavedPreset[]>(() => loadFromStorage());
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+    persistToStorage(presets);
   }, [presets]);
 
   const savePreset = (name: string, snapshot: BuilderSnapshot) => {

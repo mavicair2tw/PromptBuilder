@@ -298,6 +298,25 @@ const App = () => {
         <p className="hint">左側全域參數、中間分鏡、右側輸出與 Preset。</p>
       </header>
 
+      <section className="panel demo-video">
+        <div className="video-frame">
+          <iframe
+            src="https://gemini.google.com/share/08603c7079e6"
+            title="Prompt Builder Demo Video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+        <p className="demo-caption">
+          影片示範：如何使用 Prompt Builder 快速打造 AI 圖生影片提示詞。
+          若無法播放，請改在
+          <a href="https://gemini.google.com/share/08603c7079e6" target="_blank" rel="noreferrer">
+            Gemini 分享頁面
+          </a>
+          觀看。
+        </p>
+      </section>
+
       <div className="layout">
         <Sidebar
           options={{
