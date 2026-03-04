@@ -49,6 +49,7 @@ const defaultSoraConfig: SoraConfig = {
   resolution: '720p'
 };
 
+const DEMO_VIDEO_URL = 'https://gemini.google.com/share/08603c7079e6';
 const MAX_SORA_POLL_MS = 3 * 60 * 1000;
 
 const sampleSnapshots: { name: string; snapshot: BuilderSnapshot }[] = [
@@ -274,6 +275,10 @@ const App = () => {
     URL.revokeObjectURL(url);
   };
 
+  const openDemoVideo = () => {
+    window.open(DEMO_VIDEO_URL, '_blank', 'noopener,noreferrer');
+  };
+
   const updateSoraConfig = (patch: Partial<SoraConfig>) => {
     setSoraConfig(prev => ({ ...prev, ...patch }));
   };
@@ -445,21 +450,16 @@ const App = () => {
       </header>
 
       <section className="panel demo-video">
-        <div className="video-frame">
-          <iframe
-            src="https://gemini.google.com/share/08603c7079e6"
-            title="Prompt Builder Demo Video"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+        <div className="video-frame demo-placeholder">
+          <p>Gemini 分享頁面拒絕 iframe 內嵌，請改用外部分頁觀看示範。</p>
+          <button type="button" onClick={openDemoVideo}>
+            在 Gemini 開啟影片
+          </button>
+          <small>需登入 Gemini 帳號</small>
         </div>
         <p className="demo-caption">
           影片示範：如何使用 Prompt Builder 快速打造 AI 圖生影片提示詞。
-          若無法播放，請改在
-          <a href="https://gemini.google.com/share/08603c7079e6" target="_blank" rel="noreferrer">
-            Gemini 分享頁面
-          </a>
-          觀看。
+          按下「在 Gemini 開啟影片」後會於新分頁播放。
         </p>
       </section>
 

@@ -90,6 +90,24 @@ body {
   border: 0;
 }
 
+.demo-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+}
+
+.demo-placeholder p {
+  margin: 0;
+}
+
+.demo-placeholder small {
+  color: #cbd5f5;
+}
+
 .demo-caption {
   margin: 0;
   font-size: 14px;
